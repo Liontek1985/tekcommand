@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the microplay-hub
+# Designs by Liontek1985
+# for RetroPie and offshoot
 #
 # The RetroPie Project is the legal property of its developers, whose names are
 # too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
@@ -43,14 +45,15 @@ function install_tekcommand() {
 
 function configure_tekcommand() {
     [[ "$md_mode" == "remove" ]] && return
-
-
 }
 
 
 function remove_tekcommand() {
 
     rm -rf "$scriptdir/scriptmodules/supplementary/tekcommand"
+	cd "$rootdir/configs"
+	find . -name "*launching.png" | sed -e "p;s/g.png/g.bkpng/" | xargs -n2 mv
+	find . -name "*launching.bkpng" -exec rm {} \;
 }
 
 function gui_tekcommand() {
@@ -69,12 +72,12 @@ function gui_tekcommand() {
             1)
                 cd "$rootdir/configs"
 				find . -name "*launching.bkpng" | sed -e "p;s/g.bkpng/g.png/" | xargs -n2 mv
-                printMsgs "dialog" "Tekcommand turn on.\n\nRestart EmulationStation to apply."
+                printMsgs "dialog" "Tekcommand turn on."
                 ;;
             2)
                 cd "$rootdir/configs"
 				find . -name "*launching.png" | sed -e "p;s/g.png/g.bkpng/" | xargs -n2 mv
-                printMsgs "dialog" "Tekcommand turn off.\n\nRestart EmulationStation to apply."
+                printMsgs "dialog" "Tekcommand turn off."
                 ;;
         esac
     done
