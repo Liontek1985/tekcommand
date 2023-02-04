@@ -38,7 +38,7 @@ function install_tekcommand() {
 	cp -rvf "configs" "$rootdir"	
     chown -R $user:$user "$rootdir/configs"
 	
-	cp -r -u "tekcommand.sh" "$teksetup/tekcommand.sh"
+#	cp -r -u "tekcommand.sh" "$teksetup/tekcommand.sh"
     chown -R $user:$user "$teksetup/tekcommand.sh"
 	chmod 755 "$teksetup/tekcommand.sh"
 	rm -r "tekcommand.sh"
