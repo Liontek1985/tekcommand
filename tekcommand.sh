@@ -10,6 +10,7 @@
 # See the LICENSE.md file at the top-level directory of this distribution and
 # at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
 #
+# tekcommandscript v1.2 - 2023-02-20
 
 rp_module_id="tekcommand"
 rp_module_desc="Runcommand Launchscreens"
@@ -42,6 +43,13 @@ function install_tekcommand() {
     chown -R $user:$user "$teksetup/tekcommand.sh"
 	chmod 755 "$teksetup/tekcommand.sh"
 	rm -r "tekcommand.sh"
+
+    if [[ ! -f "$configdir/all/$md_id.cfg" ]]; then
+        iniConfig "=" '"' "$configdir/all/$md_id.cfg"
+        iniSet "TEKSTATUS" "active"		
+    fi
+    chown $user:$user "$configdir/all/$md_id.cfg"
+	chmod 755 "$configdir/all/$md_id.cfg"
 	
 }
 
@@ -52,31 +60,73 @@ function remove_tekcommand() {
 	cd "$rootdir/configs"
 	find . -name "*launching.png" | sed -e "p;s/g.png/g.bkpng/" | xargs -n2 mv
 	find . -name "*launching.bkpng" -exec rm {} \;
+    rm-r "$configdir/all/$md_id.cfg"
+}
+
+
+function configtek_tekcommand() {
+	chown $user:$user "$configdir/all/$md_id.cfg"	
+    iniConfig "=" '"' "$configdir/all/$md_id.cfg"	
+}
+
+function changestatus_tekcommand() {
+    options=(
+        ON "Activate Tekcommand Launchimages"
+        OF "Deactivate Tekcommand Launchimages"
+		XX "[current setting: $tekstatus]"
+    )
+    local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
+    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+
+    case "$choice" in
+        ON)
+            iniSet "TEKSTATUS" "active"
+            cd "$rootdir/configs"
+			find . -name "*launching.bkpng" | sed -e "p;s/g.bkpng/g.png/" | xargs -n2 mv
+			printMsgs "dialog" "Tekcommand turn on."
+            ;;
+        OF)
+            iniSet "TEKSTATUS" "non-active"
+            cd "$rootdir/configs"
+			find . -name "*launching.png" | sed -e "p;s/g.png/g.bkpng/" | xargs -n2 mv
+			printMsgs "dialog" "Tekcommand turn off."
+            ;;
+    esac
 }
 
 function gui_tekcommand() {
 
-    while true; do
+    local cmd=(dialog --default-item "$default" --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
+	
+        iniConfig "=" '"' "$configdir/all/$md_id.cfg"
 		
-        local options=(	
-            1 "Turn On - Tekcommand"
-            2 "Turn Off - Tekcommand"
+        iniGet "TEKSTATUS"
+        local tekstatus=${ini_value}
+	
+    local options=(
+    )
+        options+=(	
+            T "Tekcommand Launchimages (Switch On/Off)"
+            X "[Status: $tekstatus]"
         )
-        local cmd=(dialog --default-item "$default" --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
+		
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
-        [[ -z "$choice" ]] && break
+		
+        iniConfig "=" '"' "$configdir/all/$md_id.cfg"
+		
+        iniGet "TEKSTATUS"
+        local tekstatus=${ini_value}
+		
+    if [[ -n "$choice" ]]; then
         case "$choice" in
-            1)
-                cd "$rootdir/configs"
-				find . -name "*launching.bkpng" | sed -e "p;s/g.bkpng/g.png/" | xargs -n2 mv
-                printMsgs "dialog" "Tekcommand turn on."
+            T)
+				configtek_tekcommand
+				changestatus_tekcommand
                 ;;
-            2)
-                cd "$rootdir/configs"
-				find . -name "*launching.png" | sed -e "p;s/g.png/g.bkpng/" | xargs -n2 mv
-                printMsgs "dialog" "Tekcommand turn off."
-                ;;
+            X)
+				configtek_tekcommand
+				changestatus_tekcommand
+                ;;				
         esac
-    done
+    fi
 }
