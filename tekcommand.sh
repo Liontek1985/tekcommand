@@ -108,6 +108,7 @@ function gui_tekcommand() {
         options+=(	
             T "Tekcommand Launchimages (Switch On/Off)"
             X "[Status: $tekstatus]"
+            TEK "### Script by Liontek1985 ###"
         )
 		
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
